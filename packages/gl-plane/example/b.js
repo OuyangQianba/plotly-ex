@@ -38,6 +38,7 @@ image.onload = () => {
   const p1 = new test.GLPlane({
     gl,
     texture: image,
+    opacity: 0.5,
     points: [
        [0,0,0],
        [0,0,2],
@@ -146,7 +147,7 @@ class GLPlane {
         console.log(this.bounds);
     }
     isOpaque() {
-        return true;
+        return this.option.opacity === 1;
     }
     update(opt) {
         var _a;
@@ -156,19 +157,25 @@ class GLPlane {
             this.texture = gl_texture2d_1.default(gl, opt.texture);
         }
         this.option = Object.assign(Object.assign({ model: IDENTITY, view: IDENTITY, projection: IDENTITY, opacity: 1 }, this.option), opt);
-        if (this.lastDrawParam) {
-            this.draw(this.lastDrawParam);
+        if (opt.points) {
+            this.updateBounds(opt.points);
+            this.vertextBuffer.update(this.getVertexCoords(...opt.points));
         }
     }
     draw(param) {
         var _a, _b, _c;
         const opt = this.option;
         const { gl } = opt;
+        gl.disable(gl.DEPTH_TEST);
+        gl.enable(gl.BLEND);
+        gl.blendEquation(gl.FUNC_ADD);
+        gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
         gl.disable(gl.CULL_FACE);
         const uniforms = {
             model: (_a = param.model, (_a !== null && _a !== void 0 ? _a : opt.model)),
             view: (_b = param.view, (_b !== null && _b !== void 0 ? _b : opt.view)),
             projection: (_c = param.projection, (_c !== null && _c !== void 0 ? _c : opt.projection)),
+            opacity: opt.opacity || 1,
             texture: 0
         };
         this.texture.bind(0);
@@ -177,7 +184,9 @@ class GLPlane {
         this.vao.bind();
         gl.drawArrays(gl.TRIANGLES, 0, 6);
         this.vao.unbind();
-        this.lastDrawParam = param;
+    }
+    drawTransparent(param) {
+        this.draw(param);
     }
 }
 exports.GLPlane = GLPlane;
@@ -191,10 +200,11 @@ precision highp float;
 #define GLSLIFY 1
 
 uniform sampler2D texture;
+uniform float opacity;
 varying vec2 f_uv;
 
 void main() {
-   gl_FragColor = texture2D(texture,vec2(f_uv.x,1.0 - f_uv.y));
+   gl_FragColor = opacity * texture2D(texture,vec2(f_uv.x,1.0 - f_uv.y));
 }
 `;
 

@@ -119,7 +119,7 @@ export class GLPlane {
   }
 
   public isOpaque() {
-    return true
+    return this.option.opacity === 1
   }
 
   public update(opt: Partial<GLPlaneOption>) {
@@ -147,11 +147,16 @@ export class GLPlane {
   public draw(param: DrawParam) {
     const opt = this.option
     const { gl } = opt
+    gl.disable(gl.DEPTH_TEST)
+    gl.enable(gl.BLEND)
+    gl.blendEquation(gl.FUNC_ADD);
+    gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
     gl.disable(gl.CULL_FACE)
     const uniforms = {
       model: param.model ?? opt.model,
       view: param.view ?? opt.view,
       projection: param.projection ?? opt.projection,
+      opacity: opt.opacity || 1,
       texture: 0
     }
     this.texture.bind(0)
@@ -161,5 +166,7 @@ export class GLPlane {
     gl.drawArrays(gl.TRIANGLES, 0, 6)
     this.vao.unbind()
   }
-   
+  public drawTransparent(param: DrawParam) {
+    this.draw(param)
+  } 
 }
