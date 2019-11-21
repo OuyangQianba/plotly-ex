@@ -1,8 +1,14 @@
 {
   "name": "gl-plane",
-  "version": "1.0.0",
+  "version": "0.0.1",
   "description": "Draw a plane with texture",
   "main": "index.js",
+  "types":"./lib/index.d.ts",
+  "files":[
+    "lib",
+    "src"
+  ],
+  "main":"./lib/index.js",
   "scripts": {
     "gen:shader": "node ./scripts/trans-shaders.js",
     "dev:browserify": "npx watchify ./example/t.js -o ./example/b.js",
