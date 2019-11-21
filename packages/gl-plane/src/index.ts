@@ -34,7 +34,7 @@ export type DrawParam = {
   projection: Mat4
 }
 export type GLPlaneOption = {
-  gl: WebGL2RenderingContext
+  gl: WebGLRenderingContext
   model?: Mat4
   view?: Mat4
   projection?: Mat4
@@ -44,6 +44,10 @@ export type GLPlaneOption = {
 }
 
 export class GLPlane {
+  bounds = [
+    [0.3,0.3,0.4],
+    [1,1,1.2]
+  ]
   option: Required<Omit<GLPlaneOption, "texture">> & {
     texture?: HTMLImageElement
   }
@@ -68,10 +72,13 @@ export class GLPlane {
       ...opt
     }
     this.texture = createTexture(opt.gl, opt.texture || [1, 1])
+    const vertex = 
+      this.getVertexCoords(...opt.points)
     this.vertextBuffer = createBuffer(
       opt.gl,
-      this.getVertexCoords(...opt.points)
+      vertex
     )
+    this.updateBounds(opt.points)
     this.trangleShader = createShader(opt.gl, tragVertexSrc, trangFragSrc)
     this.vao = createVAO(opt.gl, [
       {
@@ -94,6 +101,26 @@ export class GLPlane {
   ) {
     return [...p1, ...p2, ...p3, ...p1, ...p3, ...p4]
   }
+  private updateBounds(points: Position[]) {
+    const max = [-Infinity,-Infinity,-Infinity]
+    const min = [Infinity,Infinity,Infinity]
+    for (let i = 1; i < points.length ; i++) {
+      const a = points[i-1] 
+      const b = points[i]
+      for(let j = 0;j<3;j++) {
+        max[j] = Math.max(max[j],a[j],b[j])
+        min[j] = Math.min(min[j],a[j],b[j])
+      }
+    }
+    this.bounds=[
+      min,max
+    ]
+    console.log(this.bounds)
+  }
+
+  public isOpaque() {
+    return true
+  }
 
   public update(opt: Partial<GLPlaneOption>) {
     const gl = opt.gl ?? this.option.gl
@@ -108,6 +135,12 @@ export class GLPlane {
       opacity: 1,
       ...this.option,
       ...opt
+    }
+    if(opt.points) {
+      this.updateBounds(opt.points)
+      this.vertextBuffer.update(
+        this.getVertexCoords(...opt.points)
+      )
     }
   }
 
@@ -128,4 +161,5 @@ export class GLPlane {
     gl.drawArrays(gl.TRIANGLES, 0, 6)
     this.vao.unbind()
   }
+   
 }
