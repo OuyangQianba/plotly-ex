@@ -34,6 +34,16 @@ image.onload = () => {
       [2, 0, 0]
     ]
   });
+  const p1 = new test.GLPlane({
+    gl,
+    texture: image,
+    points: [
+       [0,0,0],
+       [0,0,2],
+       [2,0,2],
+       [2,0,0]
+    ]
+  })
   function render() {
     requestAnimationFrame(render);
 
@@ -51,6 +61,16 @@ image.onload = () => {
         ),
         view: camera.matrix
       });
+      p1.draw({
+        projection: perspective(
+          [],
+          Math.PI / 4,
+          canvas.width / canvas.height,
+          0.01,
+          1000
+        ),
+        view: camera.matrix
+      })
       plane.draw({
         projection: perspective(
           [],

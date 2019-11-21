@@ -35,6 +35,16 @@ image.onload = () => {
       [2, 0, 0]
     ]
   });
+  const p1 = new test.GLPlane({
+    gl,
+    texture: image,
+    points: [
+       [0,0,0],
+       [0,0,2],
+       [2,0,2],
+       [2,0,0]
+    ]
+  })
   function render() {
     requestAnimationFrame(render);
 
@@ -52,6 +62,16 @@ image.onload = () => {
         ),
         view: camera.matrix
       });
+      p1.draw({
+        projection: perspective(
+          [],
+          Math.PI / 4,
+          canvas.width / canvas.height,
+          0.01,
+          1000
+        ),
+        view: camera.matrix
+      })
       plane.draw({
         projection: perspective(
           [],
@@ -83,9 +103,15 @@ const gl_texture2d_1 = __importDefault(require("gl-texture2d"));
 const IDENTITY = [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1];
 class GLPlane {
     constructor(opt) {
+        this.bounds = [
+            [0.3, 0.3, 0.4],
+            [1, 1, 1.2]
+        ];
         this.option = Object.assign({ model: IDENTITY, view: IDENTITY, projection: IDENTITY, opacity: 1 }, opt);
         this.texture = gl_texture2d_1.default(opt.gl, opt.texture || [1, 1]);
-        this.vertextBuffer = gl_buffer_1.default(opt.gl, this.getVertexCoords(...opt.points));
+        const vertex = this.getVertexCoords(...opt.points);
+        this.vertextBuffer = gl_buffer_1.default(opt.gl, vertex);
+        this.updateBounds(opt.points);
         this.trangleShader = gl_shader_1.default(opt.gl, trangle_vertex_1.default, trangle_fragment_1.default);
         this.vao = gl_vao_1.default(opt.gl, [
             {
@@ -103,6 +129,25 @@ class GLPlane {
     getVertexCoords(p1, p2, p3, p4) {
         return [...p1, ...p2, ...p3, ...p1, ...p3, ...p4];
     }
+    updateBounds(points) {
+        const max = [-Infinity, -Infinity, -Infinity];
+        const min = [Infinity, Infinity, Infinity];
+        for (let i = 1; i < points.length; i++) {
+            const a = points[i - 1];
+            const b = points[i];
+            for (let j = 0; j < 3; j++) {
+                max[j] = Math.max(max[j], a[j], b[j]);
+                min[j] = Math.min(min[j], a[j], b[j]);
+            }
+        }
+        this.bounds = [
+            min, max
+        ];
+        console.log(this.bounds);
+    }
+    isOpaque() {
+        return true;
+    }
     update(opt) {
         var _a;
         const gl = (_a = opt.gl, (_a !== null && _a !== void 0 ? _a : this.option.gl));
@@ -111,6 +156,9 @@ class GLPlane {
             this.texture = gl_texture2d_1.default(gl, opt.texture);
         }
         this.option = Object.assign(Object.assign({ model: IDENTITY, view: IDENTITY, projection: IDENTITY, opacity: 1 }, this.option), opt);
+        if (this.lastDrawParam) {
+            this.draw(this.lastDrawParam);
+        }
     }
     draw(param) {
         var _a, _b, _c;
@@ -129,6 +177,7 @@ class GLPlane {
         this.vao.bind();
         gl.drawArrays(gl.TRIANGLES, 0, 6);
         this.vao.unbind();
+        this.lastDrawParam = param;
     }
 }
 exports.GLPlane = GLPlane;
