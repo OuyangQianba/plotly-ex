@@ -1,0 +1,20 @@
+{
+  "name": "plotly-image3d",
+  "version": "1.0.0",
+  "description": "plot image3d in plotly.js",
+  "main": "index.js",
+  "directories": {
+    "lib": "lib"
+  },
+  "dependencies": {
+    "gl-plane": "0.0.2"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "dev:browserify": "npx watchify ./example/example.js -o ./example/b.js",
+    "dev:sync": "cd ./example; npx browser-sync --files '*.js'",
+    "dev": "npx tsc --watch & npm run dev:browserify & npm run dev:sync"
+  },
+  "author": "",
+  "license": "ISC"
+}
