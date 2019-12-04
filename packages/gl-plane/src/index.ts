@@ -122,6 +122,10 @@ export class GLPlane {
     return this.option.opacity === 1
   }
 
+  public isTransparent() {
+    return !this.isOpaque()
+  }
+
   public update(opt: Partial<GLPlaneOption>) {
     const gl = opt.gl ?? this.option.gl
     if (opt.texture && opt.texture !== this.option.texture) {
@@ -129,10 +133,6 @@ export class GLPlane {
       this.texture = createTexture(gl, opt.texture)
     }
     this.option = {
-      model: IDENTITY,
-      view: IDENTITY,
-      projection: IDENTITY,
-      opacity: 1,
       ...this.option,
       ...opt
     }
@@ -147,7 +147,6 @@ export class GLPlane {
   public draw(param: DrawParam) {
     const opt = this.option
     const { gl } = opt
-    gl.disable(gl.DEPTH_TEST)
     gl.enable(gl.BLEND)
     gl.blendEquation(gl.FUNC_ADD);
     gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA);

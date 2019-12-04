@@ -24,6 +24,7 @@ image.onload = () => {
   const plane = new test.GLPlane({
     gl,
     texture: image,
+    opacity:0.8,
     points: [
       //   [0,0,0],
       //   [0,0,2],
@@ -38,7 +39,7 @@ image.onload = () => {
   const p1 = new test.GLPlane({
     gl,
     texture: image,
-    opacity: 0.5,
+    opacity: 0.8,
     points: [
        [0,0,0],
        [0,0,2],
