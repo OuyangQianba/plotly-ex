@@ -1,5 +1,4 @@
 import { createImage3dTrace } from "./convert"
-import { Data } from "./types"
 export function registerImage3d(
   register: (m: any) => void,
   getModule: (name: string) => any
@@ -10,8 +9,12 @@ export function registerImage3d(
     basePlotModule,
     supplyDefaults(traceIn: any, traceOut: any, ...others: any[]) {
       supplyDefaults(traceIn, traceOut, ...others)
-      traceOut.texture = new Image()
-      traceOut.texture.src = traceIn.source
+      const image = new Image()
+      if(new URL(traceIn.source).origin!==location.origin) {
+        image.crossOrigin = ''
+      }
+      image.src = traceIn.source
+      traceOut.texture = image
     },
     plot: createImage3dTrace,
     categories: ["gl3d"],

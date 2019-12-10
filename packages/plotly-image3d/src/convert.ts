@@ -2,16 +2,18 @@ import { GLPlane } from 'gl-plane'
 import {Data, Scene} from './types'
 type Position = [number,number,number]
 class Image3DTrace {
-  data = {
-    hoverinfo:"skip"
-  }
   constructor(
     private scene: Scene,
-    private plane: GLPlane
-  ) {}
+    private plane: GLPlane,
+    private data: Data
+  ) {
+    this.data.hoverinfo = "skip"
+  }
 
   update(data: Data){
-    console.log("update")
+    this.data = data
+    this.data.hoverinfo = "skip"
+
     const { x, y, z } = data
     const [sx, sy, sz] =this.scene.dataScale
     const p1: Position = [x[0] * sx, y[0] * sy, z[0] * sz]
@@ -28,6 +30,7 @@ class Image3DTrace {
   }
   dispose() {
     console.log("dispose")
+    this.scene.glplot.remove(this.plane)
   }
 }
 
@@ -50,7 +53,8 @@ export function createImage3dTrace(scene:Scene,data: Data) {
   })
   const trace = new Image3DTrace(
     scene,
-    plane
+    plane,
+    data
   )
   trace.update(data)
   ;(plane as any)._trace = trace

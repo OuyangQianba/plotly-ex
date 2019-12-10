@@ -37,6 +37,7 @@ export type Data = {
   y: [number,number,number,number],
   z: [number,number,number,number],
   opacity?: number,
+  hoverinfo?: string
   source: string
   texture: HTMLImageElement
 }
