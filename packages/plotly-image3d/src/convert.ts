@@ -53,12 +53,14 @@ export function createImage3dTrace(scene:Scene,data: Data) {
       [0,0,0],
     ],
   })
-  data.texture.addEventListener('load', ()=>{
-    plane.update({
-      texture:data.texture
+  if(data.texture) {
+    data.texture.addEventListener('load', ()=>{
+      plane.update({
+        texture:data.texture
+      })
+      scene.glplot.redraw()
     })
-    scene.glplot.redraw()
-  })
+  }
   const trace = new Image3DTrace(
     scene,
     plane,

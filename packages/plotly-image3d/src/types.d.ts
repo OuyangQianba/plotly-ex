@@ -39,5 +39,5 @@ export type Data = {
   opacity?: number,
   hoverinfo?: string
   source: string
-  texture: HTMLImageElement
+  texture?: HTMLImageElement
 }
