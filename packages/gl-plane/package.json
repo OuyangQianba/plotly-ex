@@ -2,7 +2,6 @@
   "name": "gl-plane",
   "version": "0.0.2",
   "description": "Draw a plane with texture",
-  "main": "index.js",
   "types":"./lib/index.d.ts",
   "files":[
     "lib",

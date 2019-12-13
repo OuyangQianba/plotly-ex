@@ -6,6 +6,7 @@ const canvas = document.createElement("canvas");
 canvas.style.border = "1px solid";
 canvas.width = 500;
 canvas.height = 500;
+/** @type {WebGLRenderingContext} */
 const gl = canvas.getContext("webgl");
 document.body.append(canvas);
 
@@ -23,11 +24,8 @@ image.onload = () => {
   const plane = new test.GLPlane({
     gl,
     texture: image,
+    opacity: 0.9,
     points: [
-      //   [0,0,0],
-      //   [0,0,2],
-      //   [2,0,2],
-      //   [2,0,0]
       [0, 0, 0],
       [0, 2, 0],
       [2, 2, 0],
@@ -62,7 +60,11 @@ image.onload = () => {
         ),
         view: camera.matrix
       });
-      p1.draw({
+     gl.enable(gl.BLEND)
+     gl.blendEquation(gl.FUNC_ADD);
+     gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
+     gl.disable(gl.CULL_FACE)
+     p1.draw({
         projection: perspective(
           [],
           Math.PI / 4,

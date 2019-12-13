@@ -7,5 +7,8 @@ uniform float opacity;
 varying vec2 f_uv;
 
 void main() {
-   gl_FragColor = opacity * texture2D(texture,vec2(f_uv.x,1.0 - f_uv.y));
+  if(opacity == 0.0) {
+    discard;
+  }
+  gl_FragColor = opacity * texture2D(texture,vec2(f_uv.x,1.0 - f_uv.y));
 }

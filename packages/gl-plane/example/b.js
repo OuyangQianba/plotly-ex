@@ -7,6 +7,7 @@ const canvas = document.createElement("canvas");
 canvas.style.border = "1px solid";
 canvas.width = 500;
 canvas.height = 500;
+/** @type {WebGLRenderingContext} */
 const gl = canvas.getContext("webgl");
 document.body.append(canvas);
 
@@ -24,12 +25,8 @@ image.onload = () => {
   const plane = new test.GLPlane({
     gl,
     texture: image,
-    opacity:0.8,
+    opacity: 0.9,
     points: [
-      //   [0,0,0],
-      //   [0,0,2],
-      //   [2,0,2],
-      //   [2,0,0]
       [0, 0, 0],
       [0, 2, 0],
       [2, 2, 0],
@@ -39,7 +36,7 @@ image.onload = () => {
   const p1 = new test.GLPlane({
     gl,
     texture: image,
-    opacity: 0.8,
+    opacity: 0.5,
     points: [
        [0,0,0],
        [0,0,2],
@@ -64,7 +61,11 @@ image.onload = () => {
         ),
         view: camera.matrix
       });
-      p1.draw({
+     gl.enable(gl.BLEND)
+     gl.blendEquation(gl.FUNC_ADD);
+     gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
+     gl.disable(gl.CULL_FACE)
+     p1.draw({
         projection: perspective(
           [],
           Math.PI / 4,
@@ -145,10 +146,17 @@ class GLPlane {
         this.bounds = [
             min, max
         ];
-        console.log(this.bounds);
+    }
+    pick() {
+        // No pick implementation yet
+        // but plotly need a pick method
+        return null;
     }
     isOpaque() {
         return this.option.opacity === 1;
+    }
+    isTransparent() {
+        return !this.isOpaque();
     }
     update(opt) {
         var _a;
@@ -157,7 +165,7 @@ class GLPlane {
             this.texture.dispose();
             this.texture = gl_texture2d_1.default(gl, opt.texture);
         }
-        this.option = Object.assign(Object.assign({ model: IDENTITY, view: IDENTITY, projection: IDENTITY, opacity: 1 }, this.option), opt);
+        this.option = Object.assign(Object.assign({}, this.option), opt);
         if (opt.points) {
             this.updateBounds(opt.points);
             this.vertextBuffer.update(this.getVertexCoords(...opt.points));
@@ -167,16 +175,11 @@ class GLPlane {
         var _a, _b, _c;
         const opt = this.option;
         const { gl } = opt;
-        gl.disable(gl.DEPTH_TEST);
-        gl.enable(gl.BLEND);
-        gl.blendEquation(gl.FUNC_ADD);
-        gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
-        gl.disable(gl.CULL_FACE);
         const uniforms = {
             model: (_a = param.model, (_a !== null && _a !== void 0 ? _a : opt.model)),
             view: (_b = param.view, (_b !== null && _b !== void 0 ? _b : opt.view)),
             projection: (_c = param.projection, (_c !== null && _c !== void 0 ? _c : opt.projection)),
-            opacity: opt.opacity || 1,
+            opacity: opt.opacity,
             texture: 0
         };
         this.texture.bind(0);
@@ -205,7 +208,13 @@ uniform float opacity;
 varying vec2 f_uv;
 
 void main() {
-   gl_FragColor = opacity * texture2D(texture,vec2(f_uv.x,1.0 - f_uv.y));
+  gl_FragColor = vec4(opacity,0.0,0.0,1.0);
+  if(opacity == 0.0) {
+    //gl_FragColor = vec4(1.0,0.0,0.0,1.0);
+    discard;
+  } else {
+    gl_FragColor = opacity * texture2D(texture,vec2(f_uv.x,1.0 - f_uv.y));
+  }
 }
 `;
 

@@ -115,7 +115,12 @@ export class GLPlane {
     this.bounds=[
       min,max
     ]
-    console.log(this.bounds)
+  }
+
+  public pick() {
+    // No pick implementation yet
+    // but plotly need a pick method
+    return null
   }
 
   public isOpaque() {
@@ -147,15 +152,11 @@ export class GLPlane {
   public draw(param: DrawParam) {
     const opt = this.option
     const { gl } = opt
-    gl.enable(gl.BLEND)
-    gl.blendEquation(gl.FUNC_ADD);
-    gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
-    gl.disable(gl.CULL_FACE)
     const uniforms = {
       model: param.model ?? opt.model,
       view: param.view ?? opt.view,
       projection: param.projection ?? opt.projection,
-      opacity: opt.opacity || 1,
+      opacity: opt.opacity,
       texture: 0
     }
     this.texture.bind(0)
