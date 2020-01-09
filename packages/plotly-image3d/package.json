@@ -1,6 +1,6 @@
 {
   "name": "plotly-image3d",
-  "version": "0.0.7",
+  "version": "0.0.8",
   "description": "plot image3d in plotly.js",
   "types": "./lib/index.d.ts",
   "files": [
@@ -9,7 +9,7 @@
   ],
   "main": "./lib/index.js",
   "dependencies": {
-    "gl-plane": "0.0.2"
+    "gl-plane": "0.0.3"
   },
   "devDependencies": {},
   "scripts": {
